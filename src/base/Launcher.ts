@@ -59,6 +59,9 @@ export default class Launcher {
 	}
 
 	cli(...args: string[]): exec.ExecaChildProcess<string> {
-		return exec(this.cliName, args, { stdio: 'inherit' });
+		return exec(this.cliName, args, {
+			shell: true,
+			stdio: 'inherit',
+		});
 	}
 }
