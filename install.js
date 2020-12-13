@@ -1,10 +1,6 @@
 const cp = require('child_process');
 
-function exec(command) {
-	cp.execSync(command, {
-		stdio: 'inherit',
-		cwd: __dirname,
-	});
-}
-
-exec('npm ci --production');
+cp.execSync('npm ci --production', {
+	stdio: 'inherit',
+	cwd: __dirname,
+});
