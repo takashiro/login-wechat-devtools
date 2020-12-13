@@ -47,17 +47,6 @@ jobs:
     - name: Install dependencies
       run: npm ci --production
 
-    - name: Login WeChat Developer Tools
-      uses: ./
-      with:
-        smtp-host: ${{ secrets.SMTP_HOST }}
-        smtp-port: ${{ secrets.SMTP_HOST }}
-        smtp-secure: true
-        smtp-username: ${{ secrets.SMTP_USERNAME }}
-        smtp-password: ${{ secrets.SMTP_PASSWORD }}
-        smtp-sender: ${{ secrets.SMTP_SENDER }}
-        smtp-receiver: ${{ secrets.SMTP_RECEIVER }}
-
     - uses: actions/checkout@v2
       with:
         repository: takashiro/bezier-werewolf-wechat
@@ -70,11 +59,22 @@ jobs:
         npm run build
       working-directory: test-project
 
+    - name: Login WeChat Developer Tools
+      uses: ./
+      with:
+        smtp-host: ${{ secrets.SMTP_HOST }}
+        smtp-port: ${{ secrets.SMTP_HOST }}
+        smtp-secure: true
+        smtp-username: ${{ secrets.SMTP_USERNAME }}
+        smtp-password: ${{ secrets.SMTP_PASSWORD }}
+        smtp-sender: ${{ secrets.SMTP_SENDER }}
+        smtp-receiver: ${{ secrets.SMTP_RECEIVER }}
+
     - name: Build NPM
-      run: wxdev build-npm --project=test-project
+      run: wxdev build-npm --project=${{ github.workspace }}/test-project
 
     - name: Load project
-      run: wxdev auto --project=test-project --auto-port=8888
+      run: wxdev auto --project=${{ github.workspace }}/test-project --auto-port=8888
 
     - name: Run end-to-end tests
       run: npm run jest-e2e
