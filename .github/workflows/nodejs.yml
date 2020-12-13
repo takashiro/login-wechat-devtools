@@ -70,6 +70,9 @@ jobs:
         npm run build
       working-directory: test-project
 
+    - name: Build NPM
+      run: wxdev build-npm --project=test-project
+
     - name: Load project
       run: wxdev auto --project=test-project --auto-port=8888
 
