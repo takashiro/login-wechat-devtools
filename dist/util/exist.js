@@ -1,26 +1,23 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs");
-const path = require("path");
 function exist(target, timeout = 60 * 1000) {
     if (fs.existsSync(target)) {
         return Promise.resolve();
     }
     return new Promise((resolve, reject) => {
-        const targetDir = path.dirname(target);
-        const targetName = path.basename(target);
         let timer;
-        const watcher = fs.watch(targetDir, 'binary', (eventType, fileName) => {
-            if (fileName === targetName) {
+        const watcher = setInterval(() => {
+            if (fs.existsSync(target)) {
                 resolve();
-                watcher.close();
+                clearInterval(watcher);
                 if (timer) {
                     clearTimeout(timer);
                 }
             }
-        });
+        }, 500);
         timer = setTimeout(() => {
-            watcher.close();
+            clearInterval(watcher);
             reject(new Error(`${target} has not been created in ${timeout}ms.`));
         }, timeout);
     });

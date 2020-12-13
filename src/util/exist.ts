@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 
 export default function exist(target: string, timeout = 60 * 1000): Promise<void> {
 	if (fs.existsSync(target)) {
@@ -7,22 +6,20 @@ export default function exist(target: string, timeout = 60 * 1000): Promise<void
 	}
 
 	return new Promise((resolve, reject) => {
-		const targetDir = path.dirname(target);
-		const targetName = path.basename(target);
 		let timer: NodeJS.Timeout;
 
-		const watcher = fs.watch(targetDir, 'binary', (eventType, fileName) => {
-			if (fileName === targetName) {
+		const watcher = setInterval(() => {
+			if (fs.existsSync(target)) {
 				resolve();
-				watcher.close();
+				clearInterval(watcher);
 				if (timer) {
 					clearTimeout(timer);
 				}
 			}
-		});
+		}, 500);
 
 		timer = setTimeout(() => {
-			watcher.close();
+			clearInterval(watcher);
 			reject(new Error(`${target} has not been created in ${timeout}ms.`));
 		}, timeout);
 	});
