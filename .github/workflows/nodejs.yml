@@ -47,7 +47,8 @@ jobs:
     - name: Install dependencies
       run: npm ci --production
 
-    - uses: actions/checkout@v2
+    - name: Checkout project
+      uses: actions/checkout@v2
       with:
         repository: takashiro/bezier-werewolf-wechat
         ref: 6b8c7f41a6421e425dc5d19edb690cb947db4413

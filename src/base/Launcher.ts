@@ -16,8 +16,8 @@ async function sendLoginCode(qrcode: string): Promise<void> {
 	const sha = process.env.GITHUB_SHA;
 
 	await email({
-		subject: `[${workflow}] Login Request for ${repository} by ${actor}`,
-		html: `<p>Commit: ${sha}</p><p><img src="cid:login-qrcode" /></p>`,
+		subject: `[${repository}] Login Request: ${workflow}`,
+		html: `<p>Author: ${actor}</p><p>Commit: ${sha}</p><p><img src="cid:login-qrcode" /></p>`,
 		attachments: [
 			{
 				filename: 'login-qrcode.png',
