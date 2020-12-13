@@ -18,11 +18,16 @@ export const devToolMap: Record<string, DevTool> = {
 		gui: '微信开发者工具.exe',
 		async allowCli(): Promise<void> {
 			const appDataDir = process.env.LOCALAPPDATA;
-			if (!appDataDir) {
+			if (!appDataDir || !fs.existsSync(appDataDir)) {
 				throw new Error('AppData directory is not found.');
 			}
 
-			const userDataDir = path.join(appDataDir, '微信开发者工具', 'User Data');
+			const toolDir = path.join(appDataDir, '微信开发者工具');
+			await exist(toolDir);
+
+			const userDataDir = path.join(toolDir, 'User Data');
+			await exist(userDataDir);
+
 			const userDirs = await readdir(userDataDir);
 			let found = false;
 			for (const userDir of userDirs) {

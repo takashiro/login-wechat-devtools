@@ -43,7 +43,7 @@ export default class Launcher {
 	}
 
 	async prepare(): Promise<void> {
-		exec(this.tool.gui, ['--disable-gpu', '--enable-service-port'], {
+		await exec(this.tool.gui, ['--disable-gpu', '--enable-service-port'], {
 			cwd: this.tool.installDir,
 			stdio: 'inherit',
 		});
