@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         node-version: [14.x]
-        os: [windows-latest]
+        os: [windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 

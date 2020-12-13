@@ -1,10 +1,15 @@
+import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as exec from 'execa';
+import * as util from 'util';
+
 import DevTool, { devToolMap } from './DevTool';
 
 import email from '../util/email';
 import exist from '../util/exist';
+
+const readdir = util.promisify(fs.readdir);
 
 async function sendLoginCode(qrcode: string): Promise<void> {
 	await exist(qrcode);
@@ -39,11 +44,23 @@ export default class Launcher {
 	}
 
 	async prepare(): Promise<void> {
-		await exec(this.tool.gui, ['--disable-gpu', '--enable-service-port'], {
-			cwd: this.tool.installDir,
-			stdio: 'inherit',
-		});
-		await this.tool.allowCli();
+		if (!fs.existsSync(this.tool.installDir)) {
+			throw new Error(`Install location is not found at ${this.tool.installDir}`);
+		}
+
+		const guiApp = path.join(this.tool.installDir, this.tool.gui);
+		if (!fs.existsSync(guiApp)) {
+			throw new Error(`GUI app is not found at ${guiApp}`);
+		}
+
+		await Promise.all([
+			exec(`./${this.tool.gui}`, ['--disable-gpu', '--enable-service-port'], {
+				cwd: this.tool.installDir,
+				shell: true,
+				stdio: 'inherit',
+			}),
+			this.allowCli(),
+		]);
 	}
 
 	async login(): Promise<void> {
@@ -59,5 +76,31 @@ export default class Launcher {
 			cwd: this.tool.installDir,
 			stdio: 'inherit',
 		});
+	}
+
+	async allowCli(): Promise<void> {
+		const toolDir = path.join(os.homedir(), this.tool.dataDir);
+		await exist(toolDir);
+
+		const userDataDir = os.platform() === 'win32' ? path.join(toolDir, 'User Data') : toolDir;
+		await exist(userDataDir);
+
+		const userDirs = await readdir(userDataDir);
+		let found = false;
+		for (const userDir of userDirs) {
+			if (userDir === 'Crashpad' || userDir.startsWith('.')) {
+				continue;
+			}
+
+			found = true;
+			const markFiles = ['.ide', '.ide-status'];
+			await Promise.all(markFiles.map((markFile) => exist(
+				path.join(userDataDir, userDir, 'Default', markFile),
+			)));
+		}
+
+		if (!found) {
+			throw new Error('No user data directory is found.');
+		}
 	}
 }
