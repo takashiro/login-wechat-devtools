@@ -53,8 +53,9 @@ export default class Launcher {
 			throw new Error(`GUI app is not found at ${guiApp}`);
 		}
 
+		const cmd = os.platform() === 'win32' ? this.tool.gui : `./${this.tool.gui}`;
 		await Promise.all([
-			exec(`./${this.tool.gui}`, ['--disable-gpu', '--enable-service-port'], {
+			exec(cmd, ['--disable-gpu', '--enable-service-port'], {
 				cwd: this.tool.installDir,
 				shell: true,
 				stdio: 'inherit',
@@ -72,8 +73,10 @@ export default class Launcher {
 	}
 
 	cli(...args: string[]): exec.ExecaChildProcess<string> {
-		return exec(this.tool.cli, args, {
+		const cmd = os.platform() === 'win32' ? this.tool.cli : `./${this.tool.cli}`;
+		return exec(cmd, args, {
 			cwd: this.tool.installDir,
+			shell: true,
 			stdio: 'inherit',
 		});
 	}
@@ -88,7 +91,7 @@ export default class Launcher {
 		const userDirs = await readdir(userDataDir);
 		let found = false;
 		for (const userDir of userDirs) {
-			if (userDir === 'Crashpad' || userDir.startsWith('.')) {
+			if (userDir.length !== 32 || userDir.startsWith('.')) {
 				continue;
 			}
 
