@@ -8,9 +8,6 @@ branding:
   color: green
 
 inputs:
-  cli:
-    description: The executable alias of WeChat Developer Tools.
-    default: wxdev
   smtp-host:
     description: SMTP server to send Login QR Code
   smtp-port:

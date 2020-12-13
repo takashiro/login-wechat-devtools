@@ -9,6 +9,7 @@ const readdir = util.promisify(fs.readdir);
 exports.devToolMap = {
     win32: {
         installDir: 'C:\\Program Files (x86)\\Tencent\\微信web开发者工具',
+        cli: 'cli.bat',
         gui: '微信开发者工具.exe',
         async allowCli() {
             const appDataDir = process.env.LOCALAPPDATA;

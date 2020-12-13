@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const os = require("os");
 const path = require("path");
 const exec = require("execa");
-const core = require("@actions/core");
 const DevTool_1 = require("./DevTool");
 const email_1 = require("../util/email");
 const exist_1 = require("../util/exist");
@@ -32,7 +31,6 @@ class Launcher {
             throw new Error('Failed to locate CLI of WeChat Developer Tools.');
         }
         this.tool = dev;
-        this.cliName = core.getInput('cli') || 'wxdev';
     }
     async prepare() {
         await exec(this.tool.gui, ['--disable-gpu', '--enable-service-port'], {
@@ -49,7 +47,10 @@ class Launcher {
         ]);
     }
     cli(...args) {
-        return exec(this.cliName, args, { stdio: 'inherit' });
+        return exec(this.tool.cli, args, {
+            cwd: this.tool.installDir,
+            stdio: 'inherit',
+        });
     }
 }
 exports.default = Launcher;

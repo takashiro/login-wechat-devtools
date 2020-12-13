@@ -1,7 +1,6 @@
 import * as os from 'os';
 import * as path from 'path';
 import * as exec from 'execa';
-import * as core from '@actions/core';
 import DevTool, { devToolMap } from './DevTool';
 
 import email from '../util/email';
@@ -31,15 +30,12 @@ async function sendLoginCode(qrcode: string): Promise<void> {
 export default class Launcher {
 	protected readonly tool: DevTool;
 
-	protected readonly cliName: string;
-
 	constructor() {
 		const dev = devToolMap[os.platform()];
 		if (!dev) {
 			throw new Error('Failed to locate CLI of WeChat Developer Tools.');
 		}
 		this.tool = dev;
-		this.cliName = core.getInput('cli') || 'wxdev';
 	}
 
 	async prepare(): Promise<void> {
@@ -59,8 +55,8 @@ export default class Launcher {
 	}
 
 	cli(...args: string[]): exec.ExecaChildProcess<string> {
-		return exec(this.cliName, args, {
-			shell: true,
+		return exec(this.tool.cli, args, {
+			cwd: this.tool.installDir,
 			stdio: 'inherit',
 		});
 	}

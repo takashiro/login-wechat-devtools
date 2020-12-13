@@ -8,6 +8,7 @@ const readdir = util.promisify(fs.readdir);
 
 interface DevTool {
 	installDir: string;
+	cli: string;
 	gui: string;
 	allowCli: () => Promise<void>;
 }
@@ -15,6 +16,7 @@ interface DevTool {
 export const devToolMap: Record<string, DevTool> = {
 	win32: {
 		installDir: 'C:\\Program Files (x86)\\Tencent\\微信web开发者工具',
+		cli: 'cli.bat',
 		gui: '微信开发者工具.exe',
 		async allowCli(): Promise<void> {
 			const appDataDir = process.env.LOCALAPPDATA;
