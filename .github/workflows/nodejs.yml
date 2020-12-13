@@ -44,7 +44,7 @@ jobs:
     - name: Install WeChat Developer Tools
       uses: takashiro/setup-wechat-devtools@v1
 
-    - name: Install
+    - name: Install dependencies
       run: npm ci --production
 
     - name: Login WeChat Developer Tools

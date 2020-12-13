@@ -35,7 +35,10 @@ class Launcher {
         this.cliName = core.getInput('cli') || 'wxdev';
     }
     async prepare() {
-        await exec(this.tool.gui, ['--disable-gpu', '--enable-service-port']);
+        exec(this.tool.gui, ['--disable-gpu', '--enable-service-port'], {
+            cwd: this.tool.installDir,
+            stdio: 'inherit',
+        });
         await this.tool.allowCli();
     }
     async login() {

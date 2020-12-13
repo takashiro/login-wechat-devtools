@@ -24,13 +24,19 @@ export const devToolMap: Record<string, DevTool> = {
 
 			const userDataDir = path.join(appDataDir, '微信开发者工具', 'User Data');
 			const userDirs = await readdir(userDataDir);
+			let found = false;
 			for (const userDir of userDirs) {
 				if (userDir === 'Crashpad' || userDir.startsWith('.')) {
 					continue;
 				}
 
 				const markFile = path.join(userDataDir, userDir, 'Default', '.ide-status');
+				found = true;
 				await exist(markFile);
+			}
+
+			if (!found) {
+				throw new Error('No user data directory is found.');
 			}
 		},
 	},
