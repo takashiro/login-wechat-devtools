@@ -1,0 +1,19 @@
+name: Login WeChat Developer Tools
+
+description: >
+  Login WeChat Developer Tools in the CI environment so that projects can be correctly loaded via CLI.
+
+branding:
+  icon: user
+  color: green
+
+inputs:
+  cli:
+    description: >
+      The executable name of WeChat Developer Tools.
+    default: wxdev
+
+runs:
+  using: node12
+  pre: install.js
+  main: dist/index.js
