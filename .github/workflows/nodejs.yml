@@ -77,6 +77,10 @@ jobs:
     - name: Load project
       run: wxdev auto --project=${{ github.workspace }}/test-project --auto-port=8888
 
+    - name: Pause
+      run: sleep 10
+      shell: bash
+
     - name: Run end-to-end tests
       run: npm run jest-e2e
       working-directory: test-project
