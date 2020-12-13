@@ -14,7 +14,7 @@ interface DevTool {
 
 export const devToolMap: Record<string, DevTool> = {
 	win32: {
-		installDir: 'C:\\Progra~2\\Tencent\\微信web开发者工具',
+		installDir: 'C:\\Program Files (x86)\\Tencent\\微信web开发者工具',
 		gui: '微信开发者工具.exe',
 		async allowCli(): Promise<void> {
 			const appDataDir = process.env.LOCALAPPDATA;
@@ -36,7 +36,7 @@ export const devToolMap: Record<string, DevTool> = {
 				}
 
 				found = true;
-				const markFiles = ['.cli', '.ide', '.ide-status'];
+				const markFiles = ['.ide', '.ide-status'];
 				await Promise.all(markFiles.map((markFile) => exist(
 					path.join(userDataDir, userDir, 'Default', markFile),
 				)));

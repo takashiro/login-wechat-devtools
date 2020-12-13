@@ -8,7 +8,7 @@ const exist_1 = require("../util/exist");
 const readdir = util.promisify(fs.readdir);
 exports.devToolMap = {
     win32: {
-        installDir: 'C:\\Progra~2\\Tencent\\微信web开发者工具',
+        installDir: 'C:\\Program Files (x86)\\Tencent\\微信web开发者工具',
         gui: '微信开发者工具.exe',
         async allowCli() {
             const appDataDir = process.env.LOCALAPPDATA;
@@ -26,7 +26,7 @@ exports.devToolMap = {
                     continue;
                 }
                 found = true;
-                const markFiles = ['.cli', '.ide', '.ide-status'];
+                const markFiles = ['.ide', '.ide-status'];
                 await Promise.all(markFiles.map((markFile) => exist_1.default(path.join(userDataDir, userDir, 'Default', markFile))));
             }
             if (!found) {
