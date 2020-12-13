@@ -9,9 +9,23 @@ branding:
 
 inputs:
   cli:
-    description: >
-      The executable name of WeChat Developer Tools.
+    description: The executable alias of WeChat Developer Tools.
     default: wxdev
+  smtp-host:
+    description: SMTP server to send Login QR Code
+  smtp-port:
+    description: SMTP port to send Login QR Code
+  smtp-secure:
+    description: Whether SMTPS is used
+    default: false
+  smtp-username:
+    description: SMTP username to login the mail server
+  smtp-password:
+    description: SMTP password to login the mail server
+  smtp-sender:
+    description: Email address of the sender
+  smtp-receiver:
+    description: Email address of the receiver
 
 runs:
   using: node12

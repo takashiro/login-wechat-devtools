@@ -1,0 +1,78 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - canary
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm ci, build, and test
+      run: |
+        npm ci
+        npm run build
+        npm test
+
+  setup:
+    strategy:
+      matrix:
+        node-version: [14.x]
+        os: [windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+
+    - name: Install WeChat Developer Tools
+      uses: takashiro/setup-wechat-devtools@v1
+
+    - name: Install
+      run: npm ci --production
+
+    - name: Login WeChat Developer Tools
+      uses: ./
+      with:
+        smtp-host: ${{ secrets.SMTP_HOST }}
+        smtp-port: ${{ secrets.SMTP_HOST }}
+        smtp-secure: true
+        smtp-username: ${{ secrets.SMTP_USERNAME }}
+        smtp-password: ${{ secrets.SMTP_PASSWORD }}
+        smtp-sender: ${{ secrets.SMTP_SENDER }}
+        smtp-receiver: ${{ secrets.SMTP_RECEIVER }}
+
+    - uses: actions/checkout@v2
+      with:
+        repository: takashiro/bezier-werewolf-wechat
+        ref: 6b8c7f41a6421e425dc5d19edb690cb947db4413
+        path: test-project
+
+    - name: Build project
+      run: |
+        npm ci
+        npm run build
+      working-directory: test-project
+
+    - name: Load project
+      run: wxdev auto --project=test-project --auto-port=8888
+
+    - name: Run end-to-end tests
+      run: npm run jest-e2e
+      working-directory: test-project
