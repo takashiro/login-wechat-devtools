@@ -25,9 +25,9 @@ exports.devToolMap = {
                 if (userDir === 'Crashpad' || userDir.startsWith('.')) {
                     continue;
                 }
-                const markFile = path.join(userDataDir, userDir, 'Default', '.ide-status');
                 found = true;
-                await exist_1.default(markFile);
+                const markFiles = ['.cli', '.ide', '.ide-status'];
+                await Promise.all(markFiles.map((markFile) => exist_1.default(path.join(userDataDir, userDir, 'Default', markFile))));
             }
             if (!found) {
                 throw new Error('No user data directory is found.');

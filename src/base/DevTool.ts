@@ -35,9 +35,11 @@ export const devToolMap: Record<string, DevTool> = {
 					continue;
 				}
 
-				const markFile = path.join(userDataDir, userDir, 'Default', '.ide-status');
 				found = true;
-				await exist(markFile);
+				const markFiles = ['.cli', '.ide', '.ide-status'];
+				await Promise.all(markFiles.map((markFile) => exist(
+					path.join(userDataDir, userDir, 'Default', markFile),
+				)));
 			}
 
 			if (!found) {
