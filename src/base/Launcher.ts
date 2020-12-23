@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as exec from 'execa';
 import * as util from 'util';
+import * as cache from '@actions/cache';
 
 import DevTool, { devToolMap } from './DevTool';
 
@@ -53,6 +54,8 @@ export default class Launcher {
 			throw new Error(`GUI app is not found at ${guiApp}`);
 		}
 
+		await this.restoreUserData();
+
 		const cmd = os.platform() === 'win32' ? this.tool.gui : `./${this.tool.gui}`;
 		await Promise.all([
 			exec(cmd, ['--disable-gpu', '--enable-service-port'], {
@@ -75,6 +78,8 @@ export default class Launcher {
 			this.cli('login', '-f', 'image', '-o', loginQrCode),
 			sendLoginCode(loginQrCode),
 		]);
+
+		await this.saveUserData();
 	}
 
 	cli(...args: string[]): exec.ExecaChildProcess<string> {
@@ -125,5 +130,18 @@ export default class Launcher {
 			shell: true,
 		});
 		return str.stdout.includes('Login is required');
+	}
+
+	async saveUserData(): Promise<void> {
+		await cache.saveCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+	}
+
+	async restoreUserData(): Promise<void> {
+		await cache.restoreCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+	}
+
+	getCacheDirs(): string[] {
+		const dataDir = path.join(os.homedir(), this.tool.dataDir);
+		return [dataDir];
 	}
 }

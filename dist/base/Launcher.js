@@ -5,6 +5,7 @@ const os = require("os");
 const path = require("path");
 const exec = require("execa");
 const util = require("util");
+const cache = require("@actions/cache");
 const DevTool_1 = require("./DevTool");
 const email_1 = require("../util/email");
 const exist_1 = require("../util/exist");
@@ -43,6 +44,7 @@ class Launcher {
         if (!fs.existsSync(guiApp)) {
             throw new Error(`GUI app is not found at ${guiApp}`);
         }
+        await this.restoreUserData();
         const cmd = os.platform() === 'win32' ? this.tool.gui : `./${this.tool.gui}`;
         await Promise.all([
             exec(cmd, ['--disable-gpu', '--enable-service-port'], {
@@ -63,6 +65,7 @@ class Launcher {
             this.cli('login', '-f', 'image', '-o', loginQrCode),
             sendLoginCode(loginQrCode),
         ]);
+        await this.saveUserData();
     }
     cli(...args) {
         return exec(this.getCommand(), args, {
@@ -103,6 +106,16 @@ class Launcher {
             shell: true,
         });
         return str.stdout.includes('Login is required');
+    }
+    async saveUserData() {
+        await cache.saveCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+    }
+    async restoreUserData() {
+        await cache.restoreCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+    }
+    getCacheDirs() {
+        const dataDir = path.join(os.homedir(), this.tool.dataDir);
+        return [dataDir];
     }
 }
 exports.default = Launcher;
