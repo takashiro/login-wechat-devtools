@@ -54,6 +54,10 @@ class Launcher {
         ]);
     }
     async login() {
+        const anonymous = await this.isAnonymous();
+        if (!anonymous) {
+            return;
+        }
         const loginQrCode = path.join(os.tmpdir(), 'login-qrcode.png');
         await Promise.all([
             this.cli('login', '-f', 'image', '-o', loginQrCode),
@@ -61,12 +65,14 @@ class Launcher {
         ]);
     }
     cli(...args) {
-        const cmd = os.platform() === 'win32' ? this.tool.cli : `./${this.tool.cli}`;
-        return exec(cmd, args, {
+        return exec(this.getCommand(), args, {
             cwd: this.tool.installDir,
             shell: true,
             stdio: 'inherit',
         });
+    }
+    getCommand() {
+        return os.platform() === 'win32' ? this.tool.cli : `./${this.tool.cli}`;
     }
     async allowCli() {
         const toolDir = path.join(os.homedir(), this.tool.dataDir);
@@ -86,6 +92,17 @@ class Launcher {
         if (!found) {
             throw new Error('No user data directory is found.');
         }
+    }
+    async isAnonymous() {
+        const str = await exec(this.getCommand(), [
+            'cloud', 'functions', 'list',
+            '--env', 'test-123',
+            '--appid', 'wx1111111111111',
+        ], {
+            cwd: this.tool.installDir,
+            shell: true,
+        });
+        return str.stdout.includes('Login is required');
     }
 }
 exports.default = Launcher;
