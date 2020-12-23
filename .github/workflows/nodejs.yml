@@ -44,9 +44,6 @@ jobs:
     - name: Install WeChat Developer Tools
       uses: takashiro/setup-wechat-devtools@v1
 
-    - name: Install dependencies
-      run: npm ci --production
-
     - name: Checkout project
       uses: actions/checkout@v2
       with:
