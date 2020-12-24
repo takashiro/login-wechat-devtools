@@ -5,11 +5,14 @@ const os = require("os");
 const path = require("path");
 const exec = require("execa");
 const util = require("util");
+const sncp = require("ncp");
 const cache = require("@actions/cache");
 const DevTool_1 = require("./DevTool");
 const email_1 = require("../util/email");
 const exist_1 = require("../util/exist");
 const readdir = util.promisify(fs.readdir);
+const rename = util.promisify(fs.rename);
+const ncp = util.promisify(sncp);
 async function sendLoginCode(qrcode) {
     await exist_1.default(qrcode);
     const workflow = process.env.GITHUB_WORKFLOW;
@@ -108,14 +111,17 @@ class Launcher {
         return str.stdout.includes('Login is required');
     }
     async saveUserData() {
-        await cache.saveCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+        await ncp(this.getDataDir(), 'UserData');
+        await cache.saveCache(['UserData'], `wechat-devtools-${os.platform()}`);
     }
     async restoreUserData() {
-        await cache.restoreCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+        const cacheKey = await cache.restoreCache(['UserData'], `wechat-devtools-${os.platform()}`);
+        if (cacheKey && fs.existsSync('UserData')) {
+            await rename('UserData', this.getDataDir());
+        }
     }
-    getCacheDirs() {
-        const dataDir = path.join(os.homedir(), this.tool.dataDir);
-        return [dataDir];
+    getDataDir() {
+        return path.join(os.homedir(), this.tool.dataDir);
     }
 }
 exports.default = Launcher;

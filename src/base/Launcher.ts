@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as exec from 'execa';
 import * as util from 'util';
+import * as sncp from 'ncp';
 import * as cache from '@actions/cache';
 
 import DevTool, { devToolMap } from './DevTool';
@@ -11,6 +12,8 @@ import email from '../util/email';
 import exist from '../util/exist';
 
 const readdir = util.promisify(fs.readdir);
+const rename = util.promisify(fs.rename);
+const ncp = util.promisify(sncp);
 
 async function sendLoginCode(qrcode: string): Promise<void> {
 	await exist(qrcode);
@@ -133,15 +136,18 @@ export default class Launcher {
 	}
 
 	async saveUserData(): Promise<void> {
-		await cache.saveCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+		await ncp(this.getDataDir(), 'UserData');
+		await cache.saveCache(['UserData'], `wechat-devtools-${os.platform()}`);
 	}
 
 	async restoreUserData(): Promise<void> {
-		await cache.restoreCache(this.getCacheDirs(), `wechat-devtools-${os.platform()}`);
+		const cacheKey = await cache.restoreCache(['UserData'], `wechat-devtools-${os.platform()}`);
+		if (cacheKey && fs.existsSync('UserData')) {
+			await rename('UserData', this.getDataDir());
+		}
 	}
 
-	getCacheDirs(): string[] {
-		const dataDir = path.join(os.homedir(), this.tool.dataDir);
-		return [dataDir];
+	getDataDir(): string {
+		return path.join(os.homedir(), this.tool.dataDir);
 	}
 }
