@@ -7,8 +7,8 @@ import * as sncp from 'ncp';
 import * as cache from '@actions/cache';
 
 import DevTool, { devToolMap } from './DevTool';
+import CodeMailer from './CodeMailer';
 
-import email from '../util/email';
 import exist from '../util/exist';
 import idle from '../util/idle';
 
@@ -16,34 +16,13 @@ const readdir = util.promisify(fs.readdir);
 const rename = util.promisify(fs.rename);
 const ncp = util.promisify(sncp);
 
-async function sendLoginCode(qrcode: string): Promise<void> {
-	await exist(qrcode);
-
-	const workflow = process.env.GITHUB_WORKFLOW;
-	const actor = process.env.GITHUB_ACTOR;
-	const repository = process.env.GITHUB_REPOSITORY;
-	const sha = process.env.GITHUB_SHA;
-
-	await email({
-		subject: `[${repository}] Login Request: ${workflow}`,
-		html: `<p>Author: ${actor}</p><p>Commit: ${sha}</p><p><img src="cid:login-qrcode" /></p>`,
-		attachments: [
-			{
-				filename: 'login-qrcode.png',
-				path: qrcode,
-				cid: 'login-qrcode',
-			},
-		],
-	});
-}
-
 export default class Launcher {
 	protected readonly tool: DevTool;
 
 	constructor() {
 		const dev = devToolMap[os.platform()];
 		if (!dev) {
-			throw new Error('Failed to locate CLI of WeChat Developer Tools.');
+			throw new Error('The operating system is not supported.');
 		}
 		this.tool = dev;
 	}
@@ -76,9 +55,10 @@ export default class Launcher {
 
 	async login(): Promise<void> {
 		const loginQrCode = path.join(os.tmpdir(), 'login-qrcode.png');
+		const mailer = new CodeMailer(loginQrCode);
 		await Promise.all([
 			this.cli('login', '-f', 'image', '-o', loginQrCode),
-			sendLoginCode(loginQrCode),
+			mailer.send(),
 		]);
 
 		await this.cli('quit');

@@ -8,35 +8,17 @@ const util = require("util");
 const sncp = require("ncp");
 const cache = require("@actions/cache");
 const DevTool_1 = require("./DevTool");
-const email_1 = require("../util/email");
+const CodeMailer_1 = require("./CodeMailer");
 const exist_1 = require("../util/exist");
 const idle_1 = require("../util/idle");
 const readdir = util.promisify(fs.readdir);
 const rename = util.promisify(fs.rename);
 const ncp = util.promisify(sncp);
-async function sendLoginCode(qrcode) {
-    await exist_1.default(qrcode);
-    const workflow = process.env.GITHUB_WORKFLOW;
-    const actor = process.env.GITHUB_ACTOR;
-    const repository = process.env.GITHUB_REPOSITORY;
-    const sha = process.env.GITHUB_SHA;
-    await email_1.default({
-        subject: `[${repository}] Login Request: ${workflow}`,
-        html: `<p>Author: ${actor}</p><p>Commit: ${sha}</p><p><img src="cid:login-qrcode" /></p>`,
-        attachments: [
-            {
-                filename: 'login-qrcode.png',
-                path: qrcode,
-                cid: 'login-qrcode',
-            },
-        ],
-    });
-}
 class Launcher {
     constructor() {
         const dev = DevTool_1.devToolMap[os.platform()];
         if (!dev) {
-            throw new Error('Failed to locate CLI of WeChat Developer Tools.');
+            throw new Error('The operating system is not supported.');
         }
         this.tool = dev;
     }
@@ -66,9 +48,10 @@ class Launcher {
     }
     async login() {
         const loginQrCode = path.join(os.tmpdir(), 'login-qrcode.png');
+        const mailer = new CodeMailer_1.default(loginQrCode);
         await Promise.all([
             this.cli('login', '-f', 'image', '-o', loginQrCode),
-            sendLoginCode(loginQrCode),
+            mailer.send(),
         ]);
         await this.cli('quit');
         await idle_1.default(os.platform() === 'win32' ? 10000 : 3000);
