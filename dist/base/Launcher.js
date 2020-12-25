@@ -47,27 +47,29 @@ class Launcher {
         if (!fs.existsSync(guiApp)) {
             throw new Error(`GUI app is not found at ${guiApp}`);
         }
-        await this.restoreUserData();
-        const cmd = os.platform() === 'win32' ? this.tool.gui : `./${this.tool.gui}`;
-        await Promise.all([
-            exec(cmd, ['--disable-gpu', '--enable-service-port'], {
-                cwd: this.tool.installDir,
-                shell: true,
-                stdio: 'inherit',
-            }),
-            this.allowCli(),
-        ]);
+        const restored = await this.restoreUserData();
+        if (restored) {
+            await this.allowCli();
+        }
+        else {
+            const cmd = os.platform() === 'win32' ? this.tool.gui : `./${this.tool.gui}`;
+            await Promise.all([
+                exec(cmd, ['--disable-gpu', '--enable-service-port'], {
+                    cwd: this.tool.installDir,
+                    shell: true,
+                    stdio: 'inherit',
+                }),
+                this.allowCli(),
+            ]);
+        }
     }
     async login() {
-        const anonymous = await this.isAnonymous();
-        if (!anonymous) {
-            return;
-        }
         const loginQrCode = path.join(os.tmpdir(), 'login-qrcode.png');
         await Promise.all([
             this.cli('login', '-f', 'image', '-o', loginQrCode),
             sendLoginCode(loginQrCode),
         ]);
+        await this.cli('quit');
         await this.saveUserData();
     }
     cli(...args) {
@@ -118,7 +120,9 @@ class Launcher {
         const cacheKey = await cache.restoreCache(['UserData'], `wechat-devtools-${os.platform()}`);
         if (cacheKey && fs.existsSync('UserData')) {
             await rename('UserData', this.getDataDir());
+            return true;
         }
+        return false;
     }
     getDataDir() {
         return path.join(os.homedir(), this.tool.dataDir);
