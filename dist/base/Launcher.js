@@ -5,6 +5,7 @@ const os = require("os");
 const path = require("path");
 const exec = require("execa");
 const util = require("util");
+const smv = require("mv");
 const sncp = require("ncp");
 const cache = require("@actions/cache");
 const DevTool_1 = require("./DevTool");
@@ -12,7 +13,7 @@ const CodeMailer_1 = require("./CodeMailer");
 const exist_1 = require("../util/exist");
 const idle_1 = require("../util/idle");
 const readdir = util.promisify(fs.readdir);
-const rename = util.promisify(fs.rename);
+const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
 class Launcher {
     constructor() {
@@ -104,7 +105,7 @@ class Launcher {
     async restoreUserData() {
         const cacheKey = await cache.restoreCache(['UserData'], `wechat-devtools-${os.platform()}`);
         if (cacheKey && fs.existsSync('UserData')) {
-            await rename('UserData', this.getDataDir());
+            await mv('UserData', this.getDataDir());
             return true;
         }
         return false;

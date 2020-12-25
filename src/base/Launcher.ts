@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as exec from 'execa';
 import * as util from 'util';
+import * as smv from 'mv';
 import * as sncp from 'ncp';
 import * as cache from '@actions/cache';
 
@@ -13,7 +14,7 @@ import exist from '../util/exist';
 import idle from '../util/idle';
 
 const readdir = util.promisify(fs.readdir);
-const rename = util.promisify(fs.rename);
+const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
 
 export default class Launcher {
@@ -125,7 +126,7 @@ export default class Launcher {
 	async restoreUserData(): Promise<boolean> {
 		const cacheKey = await cache.restoreCache(['UserData'], `wechat-devtools-${os.platform()}`);
 		if (cacheKey && fs.existsSync('UserData')) {
-			await rename('UserData', this.getDataDir());
+			await mv('UserData', this.getDataDir());
 			return true;
 		}
 		return false;
