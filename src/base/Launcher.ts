@@ -10,6 +10,7 @@ import DevTool, { devToolMap } from './DevTool';
 
 import email from '../util/email';
 import exist from '../util/exist';
+import idle from '../util/idle';
 
 const readdir = util.promisify(fs.readdir);
 const rename = util.promisify(fs.rename);
@@ -81,6 +82,8 @@ export default class Launcher {
 		]);
 
 		await this.cli('quit');
+		await idle(os.platform() === 'win32' ? 10000 : 3000);
+
 		await this.saveUserData();
 	}
 

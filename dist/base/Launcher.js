@@ -10,6 +10,7 @@ const cache = require("@actions/cache");
 const DevTool_1 = require("./DevTool");
 const email_1 = require("../util/email");
 const exist_1 = require("../util/exist");
+const idle_1 = require("../util/idle");
 const readdir = util.promisify(fs.readdir);
 const rename = util.promisify(fs.rename);
 const ncp = util.promisify(sncp);
@@ -70,6 +71,7 @@ class Launcher {
             sendLoginCode(loginQrCode),
         ]);
         await this.cli('quit');
+        await idle_1.default(os.platform() === 'win32' ? 10000 : 3000);
         await this.saveUserData();
     }
     cli(...args) {
