@@ -1,6 +1,6 @@
 {
   "name": "login-wechat-devtools",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Login WeChat Developer Tools in GitHub Actions by sending a QR Code to your email address.",
   "main": "dist/index.js",
   "scripts": {
