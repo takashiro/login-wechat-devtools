@@ -57,7 +57,7 @@ class Launcher {
             mailer.send(),
         ]);
         await this.cli('quit');
-        if (login.exitCode !== 0) {
+        if (login.exitCode !== 0 || await this.isAnonymous()) {
             throw new Error('Login failed.');
         }
         await idle_1.default(os.platform() === 'win32' ? 10000 : 3000);
