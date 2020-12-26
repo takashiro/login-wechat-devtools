@@ -62,7 +62,6 @@ jobs:
       with:
         smtp-host: ${{ secrets.SMTP_HOST }}
         smtp-port: ${{ secrets.SMTP_HOST }}
-        smtp-secure: true
         smtp-username: ${{ secrets.SMTP_USERNAME }}
         smtp-password: ${{ secrets.SMTP_PASSWORD }}
         smtp-sender: ${{ secrets.SMTP_SENDER }}

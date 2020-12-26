@@ -14,7 +14,7 @@ inputs:
     description: SMTP port to send Login QR Code
   smtp-secure:
     description: Whether SMTPS is used
-    default: false
+    default: true
   smtp-username:
     description: SMTP username to login the mail server
   smtp-password:
