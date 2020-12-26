@@ -17,6 +17,10 @@ const readdir = util.promisify(fs.readdir);
 const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
 
+function sh(cmd: string): string {
+	return os.platform() === 'win32' ? cmd : `./${cmd}`;
+}
+
 export default class Launcher {
 	protected readonly tool: DevTool;
 
@@ -42,9 +46,8 @@ export default class Launcher {
 		if (restored) {
 			await this.allowCli();
 		} else {
-			const cmd = os.platform() === 'win32' ? this.tool.gui : `./${this.tool.gui}`;
 			await Promise.all([
-				exec(cmd, ['--disable-gpu', '--enable-service-port'], {
+				exec(sh(this.tool.gui), ['--disable-gpu', '--enable-service-port'], {
 					cwd: this.tool.installDir,
 					shell: true,
 					stdio: 'inherit',
@@ -73,15 +76,11 @@ export default class Launcher {
 	}
 
 	cli(...args: string[]): exec.ExecaChildProcess<string> {
-		return exec(this.getCommand(), args, {
+		return exec(sh(this.tool.cli), args, {
 			cwd: this.tool.installDir,
 			shell: true,
 			stdio: 'inherit',
 		});
-	}
-
-	getCommand(): string {
-		return os.platform() === 'win32' ? this.tool.cli : `./${this.tool.cli}`;
 	}
 
 	async allowCli(): Promise<void> {
@@ -111,7 +110,7 @@ export default class Launcher {
 	}
 
 	async isAnonymous(): Promise<boolean> {
-		const str = await exec(this.getCommand(), [
+		const str = await exec(sh(this.tool.cli), [
 			'cloud', 'functions', 'list',
 			'--env', 'test-123',
 			'--appid', 'wx1111111111111',

@@ -15,6 +15,9 @@ const idle_1 = require("../util/idle");
 const readdir = util.promisify(fs.readdir);
 const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
+function sh(cmd) {
+    return os.platform() === 'win32' ? cmd : `./${cmd}`;
+}
 class Launcher {
     constructor() {
         const dev = DevTool_1.devToolMap[os.platform()];
@@ -36,9 +39,8 @@ class Launcher {
             await this.allowCli();
         }
         else {
-            const cmd = os.platform() === 'win32' ? this.tool.gui : `./${this.tool.gui}`;
             await Promise.all([
-                exec(cmd, ['--disable-gpu', '--enable-service-port'], {
+                exec(sh(this.tool.gui), ['--disable-gpu', '--enable-service-port'], {
                     cwd: this.tool.installDir,
                     shell: true,
                     stdio: 'inherit',
@@ -62,14 +64,11 @@ class Launcher {
         await this.saveUserData();
     }
     cli(...args) {
-        return exec(this.getCommand(), args, {
+        return exec(sh(this.tool.cli), args, {
             cwd: this.tool.installDir,
             shell: true,
             stdio: 'inherit',
         });
-    }
-    getCommand() {
-        return os.platform() === 'win32' ? this.tool.cli : `./${this.tool.cli}`;
     }
     async allowCli() {
         const toolDir = path.join(os.homedir(), this.tool.dataDir);
@@ -91,7 +90,7 @@ class Launcher {
         }
     }
     async isAnonymous() {
-        const str = await exec(this.getCommand(), [
+        const str = await exec(sh(this.tool.cli), [
             'cloud', 'functions', 'list',
             '--env', 'test-123',
             '--appid', 'wx1111111111111',
