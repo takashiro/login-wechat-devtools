@@ -50,11 +50,14 @@ class Launcher {
     async login() {
         const loginQrCode = path.join(os.tmpdir(), 'login-qrcode.png');
         const mailer = new CodeMailer_1.default(loginQrCode);
-        await Promise.all([
+        const [login] = await Promise.all([
             this.cli('login', '-f', 'image', '-o', loginQrCode),
             mailer.send(),
         ]);
         await this.cli('quit');
+        if (login.exitCode !== 0) {
+            throw new Error('Login failed.');
+        }
         await idle_1.default(os.platform() === 'win32' ? 10000 : 3000);
         await this.saveUserData();
     }
