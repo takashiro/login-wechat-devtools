@@ -5,7 +5,7 @@ import Launcher from './base/Launcher';
 	try {
 		const launcher = new Launcher();
 
-		core.info('Preparing user data directory....');
+		core.info('Preparing user data directory...');
 		await launcher.prepare();
 
 		const anonymous = await launcher.isAnonymous();

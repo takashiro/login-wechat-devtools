@@ -27,9 +27,11 @@ jobs:
       run: |
         npm ci
         npm run build
+        node .github/workflows/check-dist.js
         npm test
 
   setup:
+    needs: build
     strategy:
       fail-fast: false
       matrix:

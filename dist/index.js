@@ -5,7 +5,7 @@ const Launcher_1 = require("./base/Launcher");
 (async function main() {
     try {
         const launcher = new Launcher_1.default();
-        core.info('Preparing user data directory....');
+        core.info('Preparing user data directory...');
         await launcher.prepare();
         const anonymous = await launcher.isAnonymous();
         if (anonymous) {
