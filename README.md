@@ -1,4 +1,4 @@
-# Login WeChat Developer Tools
+# Login WeChat Developer Tools ![Node.js CI](https://github.com/takashiro/login-wechat-devtools/workflows/Node.js%20CI/badge.svg)
 
 The action helps to login WeChat Developer Tools in your CI environment.
 
