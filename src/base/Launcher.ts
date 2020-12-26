@@ -5,6 +5,7 @@ import * as exec from 'execa';
 import * as util from 'util';
 import * as smv from 'mv';
 import * as sncp from 'ncp';
+import * as core from '@actions/core';
 import * as cache from '@actions/cache';
 
 import DevTool, { devToolMap } from './DevTool';
@@ -26,13 +27,16 @@ export default class Launcher {
 
 	protected readonly cacheKey: string;
 
-	constructor(cacheKey: string) {
+	protected readonly cacheIgnoreErrors: boolean;
+
+	constructor() {
 		const dev = devToolMap[os.platform()];
 		if (!dev) {
 			throw new Error('The operating system is not supported.');
 		}
 		this.tool = dev;
-		this.cacheKey = `${cacheKey}-${os.platform()}`;
+		this.cacheKey = `${core.getInput('cache-key') || 'wechat-devtools'}-${os.platform()}`;
+		this.cacheIgnoreErrors = core.getInput('cache-ignore-errors') === 'true';
 	}
 
 	async prepare(): Promise<void> {
@@ -126,11 +130,28 @@ export default class Launcher {
 
 	async saveUserData(): Promise<void> {
 		await ncp(this.getDataDir(), 'UserData');
-		await cache.saveCache(['UserData'], this.cacheKey);
+		if (this.cacheIgnoreErrors) {
+			try {
+				await cache.saveCache(['UserData'], this.cacheKey);
+			} catch (error) {
+				core.error(error);
+			}
+		} else {
+			await cache.saveCache(['UserData'], this.cacheKey);
+		}
 	}
 
 	async restoreUserData(): Promise<boolean> {
-		const cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+		let cacheKey: string | undefined;
+		if (this.cacheIgnoreErrors) {
+			try {
+				cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+			} catch (error) {
+				core.error(error);
+			}
+		} else {
+			cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+		}
 		if (cacheKey && fs.existsSync('UserData')) {
 			await mv('UserData', this.getDataDir());
 			return true;

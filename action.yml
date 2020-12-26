@@ -26,6 +26,9 @@ inputs:
   cache-key:
     description: The cache key to save and restore login sessions
     default: wechat-devtools
+  cache-ignore-errors:
+    description: Whether to break the action on cache errors
+    default: true
 
 runs:
   using: node12

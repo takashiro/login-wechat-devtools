@@ -3,9 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = require("@actions/core");
 const Launcher_1 = require("./base/Launcher");
 (async function main() {
-    const cacheKey = core.getInput('cache-key') || 'wechat-devtools';
     try {
-        const launcher = new Launcher_1.default(cacheKey);
+        const launcher = new Launcher_1.default();
         core.info('Preparing user data directory....');
         await launcher.prepare();
         const anonymous = await launcher.isAnonymous();

@@ -7,6 +7,7 @@ const exec = require("execa");
 const util = require("util");
 const smv = require("mv");
 const sncp = require("ncp");
+const core = require("@actions/core");
 const cache = require("@actions/cache");
 const DevTool_1 = require("./DevTool");
 const CodeMailer_1 = require("./CodeMailer");
@@ -19,13 +20,14 @@ function sh(cmd) {
     return os.platform() === 'win32' ? cmd : `./${cmd}`;
 }
 class Launcher {
-    constructor(cacheKey) {
+    constructor() {
         const dev = DevTool_1.devToolMap[os.platform()];
         if (!dev) {
             throw new Error('The operating system is not supported.');
         }
         this.tool = dev;
-        this.cacheKey = `${cacheKey}-${os.platform()}`;
+        this.cacheKey = `${core.getInput('cache-key') || 'wechat-devtools'}-${os.platform()}`;
+        this.cacheIgnoreErrors = core.getInput('cache-ignore-errors') === 'true';
     }
     async prepare() {
         if (!fs.existsSync(this.tool.installDir)) {
@@ -103,10 +105,31 @@ class Launcher {
     }
     async saveUserData() {
         await ncp(this.getDataDir(), 'UserData');
-        await cache.saveCache(['UserData'], this.cacheKey);
+        if (this.cacheIgnoreErrors) {
+            try {
+                await cache.saveCache(['UserData'], this.cacheKey);
+            }
+            catch (error) {
+                core.error(error);
+            }
+        }
+        else {
+            await cache.saveCache(['UserData'], this.cacheKey);
+        }
     }
     async restoreUserData() {
-        const cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+        let cacheKey;
+        if (this.cacheIgnoreErrors) {
+            try {
+                cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+            }
+            catch (error) {
+                core.error(error);
+            }
+        }
+        else {
+            cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+        }
         if (cacheKey && fs.existsSync('UserData')) {
             await mv('UserData', this.getDataDir());
             return true;
