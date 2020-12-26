@@ -19,12 +19,13 @@ function sh(cmd) {
     return os.platform() === 'win32' ? cmd : `./${cmd}`;
 }
 class Launcher {
-    constructor() {
+    constructor(cacheKey) {
         const dev = DevTool_1.devToolMap[os.platform()];
         if (!dev) {
             throw new Error('The operating system is not supported.');
         }
         this.tool = dev;
+        this.cacheKey = `${cacheKey}-${os.platform()}`;
     }
     async prepare() {
         if (!fs.existsSync(this.tool.installDir)) {
@@ -102,10 +103,10 @@ class Launcher {
     }
     async saveUserData() {
         await ncp(this.getDataDir(), 'UserData');
-        await cache.saveCache(['UserData'], `wechat-devtools-${os.platform()}`);
+        await cache.saveCache(['UserData'], this.cacheKey);
     }
     async restoreUserData() {
-        const cacheKey = await cache.restoreCache(['UserData'], `wechat-devtools-${os.platform()}`);
+        const cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
         if (cacheKey && fs.existsSync('UserData')) {
             await mv('UserData', this.getDataDir());
             return true;

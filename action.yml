@@ -23,6 +23,9 @@ inputs:
     description: Email address of the sender
   smtp-receiver:
     description: Email address of the receiver
+  cache-key:
+    description: The cache key to save and restore login sessions
+    default: wechat-devtools
 
 runs:
   using: node12

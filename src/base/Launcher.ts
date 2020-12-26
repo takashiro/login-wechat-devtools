@@ -24,12 +24,15 @@ function sh(cmd: string): string {
 export default class Launcher {
 	protected readonly tool: DevTool;
 
-	constructor() {
+	protected readonly cacheKey: string;
+
+	constructor(cacheKey: string) {
 		const dev = devToolMap[os.platform()];
 		if (!dev) {
 			throw new Error('The operating system is not supported.');
 		}
 		this.tool = dev;
+		this.cacheKey = `${cacheKey}-${os.platform()}`;
 	}
 
 	async prepare(): Promise<void> {
@@ -123,11 +126,11 @@ export default class Launcher {
 
 	async saveUserData(): Promise<void> {
 		await ncp(this.getDataDir(), 'UserData');
-		await cache.saveCache(['UserData'], `wechat-devtools-${os.platform()}`);
+		await cache.saveCache(['UserData'], this.cacheKey);
 	}
 
 	async restoreUserData(): Promise<boolean> {
-		const cacheKey = await cache.restoreCache(['UserData'], `wechat-devtools-${os.platform()}`);
+		const cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
 		if (cacheKey && fs.existsSync('UserData')) {
 			await mv('UserData', this.getDataDir());
 			return true;
