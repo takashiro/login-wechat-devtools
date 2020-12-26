@@ -12,14 +12,15 @@ The action helps to login WeChat Developer Tools in your CI environment.
     ## SMTP Settings to send the QR Code.
     smtp-host: ${{ secrets.SMTP_HOST }}
     smtp-port: ${{ secrets.SMTP_HOST }}
-    smtp-secure: true
     smtp-username: ${{ secrets.SMTP_USERNAME }}
     smtp-password: ${{ secrets.SMTP_PASSWORD }}
     smtp-sender: ${{ secrets.SMTP_SENDER }}
     smtp-receiver: ${{ secrets.SMTP_RECEIVER }}
+    smtp-secure: true
 
-    ## Optional. The executable alias to the cli (or cli.bat on Windows) in WeChat DevTools.
-    cli: 'wxdev'
+    ## Cache Settings to save and restore your login session.
+    cache-key: 'wechat-devtools'
+    cache-ignore-errors: true
 
 - name: Build NPM
   run: wxdev build-npm --project=${{ github.workspace }}
