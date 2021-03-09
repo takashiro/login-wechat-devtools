@@ -49,19 +49,19 @@ export default class Launcher {
 			throw new Error(`GUI app is not found at ${guiApp}`);
 		}
 
-		const restored = await this.restoreUserData();
-		if (restored) {
-			await this.allowCli();
-		} else {
-			await Promise.all([
-				exec(sh(this.tool.gui), ['--disable-gpu', '--enable-service-port'], {
-					cwd: this.tool.installDir,
-					shell: true,
-					stdio: 'inherit',
-				}),
-				this.allowCli(),
-			]);
-		}
+		await this.restoreUserData();
+		await Promise.all([
+			this.launchGui(),
+			this.allowCli(),
+		]);
+	}
+
+	async launchGui(): Promise<void> {
+		await exec(sh(this.tool.gui), ['--disable-gpu', '--enable-service-port'], {
+			cwd: this.tool.installDir,
+			shell: true,
+			stdio: 'inherit',
+		});
 	}
 
 	async login(): Promise<void> {
