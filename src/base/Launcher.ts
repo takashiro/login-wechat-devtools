@@ -13,8 +13,8 @@ import CodeMailer from './CodeMailer';
 
 import exist from '../util/exist';
 import idle from '../util/idle';
+import md5 from '../util/md5';
 
-const readdir = util.promisify(fs.readdir);
 const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
 
@@ -97,23 +97,15 @@ export default class Launcher {
 		const userDataDir = os.platform() === 'win32' ? path.join(toolDir, 'User Data') : toolDir;
 		await exist(userDataDir);
 
-		const userDirs = await readdir(userDataDir);
-		let found = false;
-		for (const userDir of userDirs) {
-			if (userDir.length !== 32 || userDir.startsWith('.')) {
-				continue;
-			}
-
-			found = true;
-			const markFiles = ['.ide', '.ide-status'];
-			await Promise.all(markFiles.map((markFile) => exist(
-				path.join(userDataDir, userDir, 'Default', markFile),
-			)));
-		}
-
-		if (!found) {
+		const userDir = path.join(userDataDir, md5(this.tool.installDir));
+		if (!fs.existsSync(userDir)) {
 			throw new Error('No user data directory is found.');
 		}
+
+		const markFiles = ['.ide', '.ide-status'];
+		await Promise.all(markFiles.map((markFile) => exist(
+			path.join(userDir, 'Default', markFile),
+		)));
 	}
 
 	async isAnonymous(): Promise<boolean> {

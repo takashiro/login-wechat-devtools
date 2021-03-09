@@ -13,7 +13,7 @@ const DevTool_1 = require("./DevTool");
 const CodeMailer_1 = require("./CodeMailer");
 const exist_1 = require("../util/exist");
 const idle_1 = require("../util/idle");
-const readdir = util.promisify(fs.readdir);
+const md5_1 = require("../util/md5");
 const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
 function sh(cmd) {
@@ -78,19 +78,12 @@ class Launcher {
         await exist_1.default(toolDir);
         const userDataDir = os.platform() === 'win32' ? path.join(toolDir, 'User Data') : toolDir;
         await exist_1.default(userDataDir);
-        const userDirs = await readdir(userDataDir);
-        let found = false;
-        for (const userDir of userDirs) {
-            if (userDir.length !== 32 || userDir.startsWith('.')) {
-                continue;
-            }
-            found = true;
-            const markFiles = ['.ide', '.ide-status'];
-            await Promise.all(markFiles.map((markFile) => exist_1.default(path.join(userDataDir, userDir, 'Default', markFile))));
-        }
-        if (!found) {
+        const userDir = path.join(userDataDir, md5_1.default(this.tool.installDir));
+        if (!fs.existsSync(userDir)) {
             throw new Error('No user data directory is found.');
         }
+        const markFiles = ['.ide', '.ide-status'];
+        await Promise.all(markFiles.map((markFile) => exist_1.default(path.join(userDir, 'Default', markFile))));
     }
     async isAnonymous() {
         const str = await exec(sh(this.tool.cli), [
