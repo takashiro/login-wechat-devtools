@@ -17,6 +17,7 @@ import md5 from '../util/md5';
 
 const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
+const symlink = util.promisify(fs.symlink);
 
 function sh(cmd: string): string {
 	return os.platform() === 'win32' ? cmd : `./${cmd}`;
@@ -106,6 +107,16 @@ export default class Launcher {
 		await Promise.all(markFiles.map((markFile) => exist(
 			path.join(userDir, 'Default', markFile),
 		)));
+
+		// Hack for an issue on OS X
+		if (os.platform() === 'darwin') {
+			const from = path.join(userDataDir, 'f1fed8de4c2182d92f6729442499eb45');
+			if (from) {
+				await exec('rm', ['-rf', from]);
+			}
+			await symlink(userDir, from);
+			await exec('sudo', ['ln', '-s', this.tool.installDir, '/Applications']);
+		}
 	}
 
 	async isAnonymous(): Promise<boolean> {

@@ -16,6 +16,7 @@ const idle_1 = require("../util/idle");
 const md5_1 = require("../util/md5");
 const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
+const symlink = util.promisify(fs.symlink);
 function sh(cmd) {
     return os.platform() === 'win32' ? cmd : `./${cmd}`;
 }
@@ -82,6 +83,15 @@ class Launcher {
         }
         const markFiles = ['.ide', '.ide-status'];
         await Promise.all(markFiles.map((markFile) => exist_1.default(path.join(userDir, 'Default', markFile))));
+        // Hack for an issue on OS X
+        if (os.platform() === 'darwin') {
+            const from = path.join(userDataDir, 'f1fed8de4c2182d92f6729442499eb45');
+            if (from) {
+                await exec('rm', ['-rf', from]);
+            }
+            await symlink(userDir, from);
+            await exec('sudo', ['ln', '-s', this.tool.installDir, '/Applications']);
+        }
     }
     async isAnonymous() {
         const str = await exec(sh(this.tool.cli), [
