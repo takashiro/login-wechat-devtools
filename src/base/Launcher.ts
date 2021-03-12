@@ -92,10 +92,10 @@ export default class Launcher {
 	}
 
 	async allowCli(): Promise<void> {
-		const toolDir = path.join(os.homedir(), this.tool.dataDir);
-		await exist(toolDir);
+		const dataDir = this.getDataDir();
+		await exist(dataDir);
 
-		const userDataDir = os.platform() === 'win32' ? path.join(toolDir, 'User Data') : toolDir;
+		const userDataDir = path.join(dataDir, this.tool.userDataDir);
 		await exist(userDataDir);
 
 		const userDir = path.join(userDataDir, md5(this.tool.installDir));

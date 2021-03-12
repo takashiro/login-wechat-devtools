@@ -73,9 +73,9 @@ class Launcher {
         });
     }
     async allowCli() {
-        const toolDir = path.join(os.homedir(), this.tool.dataDir);
-        await exist_1.default(toolDir);
-        const userDataDir = os.platform() === 'win32' ? path.join(toolDir, 'User Data') : toolDir;
+        const dataDir = this.getDataDir();
+        await exist_1.default(dataDir);
+        const userDataDir = path.join(dataDir, this.tool.userDataDir);
         await exist_1.default(userDataDir);
         const userDir = path.join(userDataDir, md5_1.default(this.tool.installDir));
         if (!fs.existsSync(userDir)) {
