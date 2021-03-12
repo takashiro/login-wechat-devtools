@@ -43,6 +43,7 @@ class Launcher {
             this.launchGui(),
             this.allowCli(),
         ]);
+        await idle_1.default(this.tool.launchDelay);
     }
     async launchGui() {
         await exec(sh(this.tool.gui), ['--disable-gpu', '--enable-service-port'], {
@@ -62,7 +63,7 @@ class Launcher {
         if (login.exitCode !== 0 || await this.isAnonymous()) {
             throw new Error('Login failed.');
         }
-        await idle_1.default(os.platform() === 'win32' ? 10000 : 3000);
+        await idle_1.default(this.tool.logoutDelay);
         await this.saveUserData();
     }
     cli(...args) {

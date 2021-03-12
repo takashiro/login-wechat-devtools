@@ -55,6 +55,8 @@ export default class Launcher {
 			this.launchGui(),
 			this.allowCli(),
 		]);
+
+		await idle(this.tool.launchDelay);
 	}
 
 	async launchGui(): Promise<void> {
@@ -79,7 +81,7 @@ export default class Launcher {
 			throw new Error('Login failed.');
 		}
 
-		await idle(os.platform() === 'win32' ? 10000 : 3000);
+		await idle(this.tool.logoutDelay);
 		await this.saveUserData();
 	}
 
