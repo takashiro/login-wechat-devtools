@@ -75,8 +75,6 @@ export default class Launcher {
 			mailer.send(),
 		]);
 
-		await this.cli('quit');
-
 		if (login.exitCode !== 0 || await this.isAnonymous()) {
 			throw new Error('Login failed.');
 		}
