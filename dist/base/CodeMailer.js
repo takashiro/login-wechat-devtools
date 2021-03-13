@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const os = require("os");
 const email_1 = require("../util/email");
 const exist_1 = require("../util/exist");
 class CodeMailer {
@@ -13,7 +14,7 @@ class CodeMailer {
         const repository = process.env.GITHUB_REPOSITORY;
         const sha = process.env.GITHUB_SHA;
         await email_1.default({
-            subject: `[${repository}] Login Request: ${workflow}`,
+            subject: `[${repository}] Login Request: ${workflow} (${os.platform()})`,
             html: `<p>Author: ${actor}</p><p>Commit: ${sha}</p><p><img src="cid:login-qrcode" /></p>`,
             attachments: [
                 {

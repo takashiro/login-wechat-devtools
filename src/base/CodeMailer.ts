@@ -1,3 +1,5 @@
+import * as os from 'os';
+
 import email from '../util/email';
 import exist from '../util/exist';
 
@@ -17,7 +19,7 @@ export default class CodeMailer {
 		const sha = process.env.GITHUB_SHA;
 
 		await email({
-			subject: `[${repository}] Login Request: ${workflow}`,
+			subject: `[${repository}] Login Request: ${workflow} (${os.platform()})`,
 			html: `<p>Author: ${actor}</p><p>Commit: ${sha}</p><p><img src="cid:login-qrcode" /></p>`,
 			attachments: [
 				{
