@@ -79,5 +79,5 @@ jobs:
       run: wxdev auto --project=${{ github.workspace }}/test-project --auto-port=8888
 
     - name: Run end-to-end tests
-      run: npm run jest-e2e
+      run: npx jest --config=test/e2e/jest.config.js LobbyPage.spec.ts
       working-directory: test-project
