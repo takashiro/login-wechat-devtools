@@ -19,7 +19,7 @@ const devToolMap: Record<string, DevTool> = {
 		installDir: '/Applications/wechatwebdevtools.app/Contents/MacOS',
 		dataDir: path.join('Library', 'Application Support', '微信开发者工具'),
 		userDataDir: '',
-		launchDelay: 5000,
+		launchDelay: 10000,
 		logoutDelay: 3000,
 	}),
 };
