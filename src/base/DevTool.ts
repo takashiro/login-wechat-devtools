@@ -25,7 +25,7 @@ interface DevToolConfig {
 	dataDir: string;
 	userDataDir: string;
 	launchDelay: number;
-	logoutDelay: number;
+	actionDelay: number;
 }
 
 export default class DevTool {
@@ -41,7 +41,7 @@ export default class DevTool {
 
 	protected launchDelay: number;
 
-	protected logoutDelay: number;
+	protected actionDelay: number;
 
 	protected readonly cacheKey: string;
 
@@ -54,7 +54,7 @@ export default class DevTool {
 		this.dataDir = path.join(os.homedir(), config.dataDir);
 		this.userDataDir = path.join(this.dataDir, config.userDataDir);
 		this.launchDelay = config.launchDelay;
-		this.logoutDelay = config.logoutDelay;
+		this.actionDelay = config.actionDelay;
 
 		this.cacheKey = `${core.getInput('cache-key') || 'wechat-devtools'}-${os.platform()}`;
 		this.cacheIgnoreErrors = core.getInput('cache-ignore-errors') === 'true';
@@ -107,12 +107,15 @@ export default class DevTool {
 			this.cli('login', '-f', 'image', '-o', loginQrCode),
 			mailer.send(),
 		]);
+		await idle(this.actionDelay);
 
 		if (login.exitCode !== 0 || await this.isAnonymous()) {
 			throw new Error('Login failed.');
 		}
 
-		await idle(this.logoutDelay);
+		await this.cli('quit');
+		await idle(this.actionDelay);
+
 		await this.saveUserData();
 	}
 

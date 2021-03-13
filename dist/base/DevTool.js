@@ -24,7 +24,7 @@ class DevTool {
         this.dataDir = path.join(os.homedir(), config.dataDir);
         this.userDataDir = path.join(this.dataDir, config.userDataDir);
         this.launchDelay = config.launchDelay;
-        this.logoutDelay = config.logoutDelay;
+        this.actionDelay = config.actionDelay;
         this.cacheKey = `${core.getInput('cache-key') || 'wechat-devtools'}-${os.platform()}`;
         this.cacheIgnoreErrors = core.getInput('cache-ignore-errors') === 'true';
     }
@@ -66,10 +66,12 @@ class DevTool {
             this.cli('login', '-f', 'image', '-o', loginQrCode),
             mailer.send(),
         ]);
+        await idle_1.default(this.actionDelay);
         if (login.exitCode !== 0 || await this.isAnonymous()) {
             throw new Error('Login failed.');
         }
-        await idle_1.default(this.logoutDelay);
+        await this.cli('quit');
+        await idle_1.default(this.actionDelay);
         await this.saveUserData();
     }
     async launchGui() {

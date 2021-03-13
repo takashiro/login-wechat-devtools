@@ -10,8 +10,8 @@ const devToolMap = {
         installDir: 'C:\\Program Files (x86)\\Tencent\\微信web开发者工具',
         dataDir: path.join('AppData', 'Local', '微信开发者工具'),
         userDataDir: 'User Data',
-        launchDelay: 5000,
-        logoutDelay: 10000,
+        launchDelay: 10000,
+        actionDelay: 10000,
     }),
     darwin: new DevTool_1.default({
         cli: 'cli',
@@ -20,7 +20,7 @@ const devToolMap = {
         dataDir: path.join('Library', 'Application Support', '微信开发者工具'),
         userDataDir: '',
         launchDelay: 10000,
-        logoutDelay: 3000,
+        actionDelay: 3000,
     }),
 };
 class DevToolFactory {
