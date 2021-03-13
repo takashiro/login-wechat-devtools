@@ -1,10 +1,14 @@
 import * as core from '@actions/core';
-import Launcher from './base/Launcher';
+import DevToolFactory from './base/DevToolFactory';
 
 (async function main(): Promise<void> {
-	try {
-		const launcher = new Launcher();
+	const launcher = DevToolFactory.getInstance();
+	if (!launcher) {
+		core.setFailed('The operating system is not supported yet.');
+		return;
+	}
 
+	try {
 		core.info('Preparing user data directory...');
 		await launcher.prepare();
 

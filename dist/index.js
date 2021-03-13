@@ -1,10 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = require("@actions/core");
-const Launcher_1 = require("./base/Launcher");
+const DevToolFactory_1 = require("./base/DevToolFactory");
 (async function main() {
+    const launcher = DevToolFactory_1.default.getInstance();
+    if (!launcher) {
+        core.setFailed('The operating system is not supported yet.');
+        return;
+    }
     try {
-        const launcher = new Launcher_1.default();
         core.info('Preparing user data directory...');
         await launcher.prepare();
         const anonymous = await launcher.isAnonymous();
