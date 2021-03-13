@@ -17,9 +17,6 @@ const md5_1 = require("../util/md5");
 const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
 const symlink = util.promisify(fs.symlink);
-function sh(cmd) {
-    return os.platform() === 'win32' ? cmd : `./${cmd}`;
-}
 class Launcher {
     constructor() {
         const dev = DevTool_1.devToolMap[os.platform()];
@@ -46,9 +43,9 @@ class Launcher {
         await idle_1.default(this.tool.launchDelay);
     }
     async launchGui() {
-        await exec(sh(this.tool.gui), ['--disable-gpu', '--enable-service-port'], {
+        const gui = path.join(this.tool.installDir, this.tool.gui);
+        await exec(gui, ['--disable-gpu', '--enable-service-port'], {
             cwd: this.tool.installDir,
-            shell: true,
             stdio: 'inherit',
         });
     }
@@ -66,10 +63,9 @@ class Launcher {
         await this.saveUserData();
     }
     cli(...args) {
-        return exec(sh(this.tool.cli), args, {
+        const cli = path.join(this.tool.installDir, this.tool.cli);
+        return exec(cli, args, {
             cwd: this.tool.installDir,
-            shell: true,
-            stdio: 'inherit',
         });
     }
     async allowCli() {
@@ -94,14 +90,7 @@ class Launcher {
         }
     }
     async isAnonymous() {
-        const str = await exec(sh(this.tool.cli), [
-            'cloud', 'functions', 'list',
-            '--env', 'test-123',
-            '--appid', 'wx1111111111111',
-        ], {
-            cwd: this.tool.installDir,
-            shell: true,
-        });
+        const str = await this.cli('cloud', 'functions', 'list', '--env', 'test-123', '--appid', 'wx1111111111111');
         return str.stdout.includes('Login is required');
     }
     async saveUserData() {

@@ -19,10 +19,6 @@ const mv = util.promisify(smv);
 const ncp = util.promisify(sncp);
 const symlink = util.promisify(fs.symlink);
 
-function sh(cmd: string): string {
-	return os.platform() === 'win32' ? cmd : `./${cmd}`;
-}
-
 export default class Launcher {
 	protected readonly tool: DevTool;
 
@@ -60,9 +56,9 @@ export default class Launcher {
 	}
 
 	async launchGui(): Promise<void> {
-		await exec(sh(this.tool.gui), ['--disable-gpu', '--enable-service-port'], {
+		const gui = path.join(this.tool.installDir, this.tool.gui);
+		await exec(gui, ['--disable-gpu', '--enable-service-port'], {
 			cwd: this.tool.installDir,
-			shell: true,
 			stdio: 'inherit',
 		});
 	}
@@ -84,10 +80,9 @@ export default class Launcher {
 	}
 
 	cli(...args: string[]): exec.ExecaChildProcess<string> {
-		return exec(sh(this.tool.cli), args, {
+		const cli = path.join(this.tool.installDir, this.tool.cli);
+		return exec(cli, args, {
 			cwd: this.tool.installDir,
-			shell: true,
-			stdio: 'inherit',
 		});
 	}
 
@@ -120,14 +115,11 @@ export default class Launcher {
 	}
 
 	async isAnonymous(): Promise<boolean> {
-		const str = await exec(sh(this.tool.cli), [
+		const str = await this.cli(
 			'cloud', 'functions', 'list',
 			'--env', 'test-123',
 			'--appid', 'wx1111111111111',
-		], {
-			cwd: this.tool.installDir,
-			shell: true,
-		});
+		);
 		return str.stdout.includes('Login is required');
 	}
 
