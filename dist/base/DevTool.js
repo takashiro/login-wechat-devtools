@@ -53,6 +53,9 @@ class DevTool {
             throw new Error(`GUI app is not found at ${guiPath}`);
         }
         await this.restoreUserData();
+        await this.launch();
+    }
+    async launch() {
         await Promise.all([
             this.launchGui(),
             this.allowCli(),
@@ -70,9 +73,18 @@ class DevTool {
         if (login.exitCode !== 0 || await this.isAnonymous()) {
             throw new Error('Login failed.');
         }
+        const win32 = os.platform() === 'win32';
+        if (win32) {
+            await this.quit();
+        }
+        await this.saveUserData();
+        if (win32) {
+            await this.launch();
+        }
+    }
+    async quit() {
         await this.cli('quit');
         await idle_1.default(this.actionDelay);
-        await this.saveUserData();
     }
     async launchGui() {
         const gui = this.getGuiPath();

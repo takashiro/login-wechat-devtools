@@ -92,11 +92,14 @@ export default class DevTool {
 		}
 
 		await this.restoreUserData();
+		await this.launch();
+	}
+
+	async launch(): Promise<void> {
 		await Promise.all([
 			this.launchGui(),
 			this.allowCli(),
 		]);
-
 		await idle(this.launchDelay);
 	}
 
@@ -113,10 +116,19 @@ export default class DevTool {
 			throw new Error('Login failed.');
 		}
 
+		const win32 = os.platform() === 'win32';
+		if (win32) {
+			await this.quit();
+		}
+		await this.saveUserData();
+		if (win32) {
+			await this.launch();
+		}
+	}
+
+	async quit(): Promise<void> {
 		await this.cli('quit');
 		await idle(this.actionDelay);
-
-		await this.saveUserData();
 	}
 
 	async launchGui(): Promise<void> {
