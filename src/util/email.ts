@@ -1,4 +1,5 @@
 import * as core from '@actions/core';
+import * as exec from 'execa';
 import * as mailer from 'nodemailer';
 
 interface Attachment {
@@ -24,9 +25,15 @@ export default async function email(mail: Email): Promise<void> {
 		},
 	});
 	await smtp.verify();
+
+	let author = core.getInput('smtp-receiver');
+	if (!author) {
+		const { stdout } = await exec('git', ['log', '-1', '--pretty=format:%ce', 'HEAD']);
+		author = stdout;
+	}
 	await smtp.sendMail({
 		from: core.getInput('smtp-sender', { required: true }),
-		to: core.getInput('smtp-receiver', { required: true }),
+		to: author,
 		...mail,
 	});
 }

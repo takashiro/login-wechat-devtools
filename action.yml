@@ -22,7 +22,7 @@ inputs:
   smtp-sender:
     description: Email address of the sender
   smtp-receiver:
-    description: Email address of the receiver
+    description: (Optional) Email address of the receiver. If not defined, login code will be sent to the author of the final commit.
   cache-key:
     description: The cache key to save and restore login sessions
     default: wechat-devtools
