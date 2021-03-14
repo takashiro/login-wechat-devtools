@@ -80,3 +80,6 @@ jobs:
     - name: Run end-to-end tests
       run: npx jest --config=test/e2e/jest.config.js LobbyPage.spec.ts
       working-directory: test-project
+
+    - name: Quit WeChat DevTools
+      run: wxdev quit
