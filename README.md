@@ -2,6 +2,8 @@
 
 The action helps to login WeChat Developer Tools in your CI environment.
 
+The login QR code will be sent to the final commit author.
+
 # Usage
 
 <!-- start usage -->
@@ -15,7 +17,6 @@ The action helps to login WeChat Developer Tools in your CI environment.
     smtp-username: ${{ secrets.SMTP_USERNAME }}
     smtp-password: ${{ secrets.SMTP_PASSWORD }}
     smtp-sender: ${{ secrets.SMTP_SENDER }}
-    smtp-receiver: ${{ secrets.SMTP_RECEIVER }}
     smtp-secure: true
 
     ## Cache Settings to save and restore your login session.
