@@ -183,29 +183,51 @@ export default class DevTool {
 		return str.stdout.includes('Login is required');
 	}
 
+	getCacheKey(): string {
+		const now = new Date();
+		const ym = `${now.getUTCFullYear()}${now.getUTCMonth() + 1}`;
+		const day = `${now.getUTCDay()}`;
+		const his = `${now.getUTCHours()}${now.getUTCMinutes()}${now.getUTCSeconds()}`;
+		return `${this.cacheKey}-${ym}-${day}-${his}`;
+	}
+
+	getRestoreKeys(): string[] {
+		const now = new Date();
+		const ym = `${now.getUTCFullYear()}${now.getUTCMonth() + 1}`;
+		const day = `${now.getUTCDay()}`;
+		return [
+			`${this.cacheKey}-${ym}-${day}-`,
+			`${this.cacheKey}-${ym}-`,
+			`${this.cacheKey}-`,
+		];
+	}
+
 	async saveUserData(): Promise<void> {
 		await ncp(this.getDataDir(), 'UserData');
+		const cacheKey = this.getCacheKey();
 		if (this.cacheIgnoreErrors) {
 			try {
-				await cache.saveCache(['UserData'], this.cacheKey);
+				await cache.saveCache(['UserData'], cacheKey);
 			} catch (error) {
 				core.error(error);
 			}
 		} else {
-			await cache.saveCache(['UserData'], this.cacheKey);
+			await cache.saveCache(['UserData'], cacheKey);
 		}
 	}
 
 	async restoreUserData(): Promise<boolean> {
+		const primaryRestoreKey = this.getCacheKey();
+		const restoreKeys = this.getRestoreKeys();
 		let cacheKey: string | undefined;
 		if (this.cacheIgnoreErrors) {
 			try {
-				cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+				cacheKey = await cache.restoreCache(['UserData'], primaryRestoreKey, restoreKeys);
 			} catch (error) {
 				core.error(error);
 			}
 		} else {
-			cacheKey = await cache.restoreCache(['UserData'], this.cacheKey);
+			cacheKey = await cache.restoreCache(['UserData'], primaryRestoreKey, restoreKeys);
 		}
 		if (cacheKey && fs.existsSync('UserData')) {
 			await mv('UserData', this.getDataDir());
