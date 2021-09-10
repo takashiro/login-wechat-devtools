@@ -8,12 +8,12 @@ class CodeMailer {
         this.qrcode = qrcode;
     }
     async send() {
-        await exist_1.default(this.qrcode);
+        await (0, exist_1.default)(this.qrcode);
         const workflow = process.env.GITHUB_WORKFLOW;
         const actor = process.env.GITHUB_ACTOR;
         const repository = process.env.GITHUB_REPOSITORY;
         const sha = process.env.GITHUB_SHA;
-        await email_1.default({
+        await (0, email_1.default)({
             subject: `[${repository}] Login Request: ${workflow} (${os.platform()})`,
             html: `<p>Author: ${actor}</p><p>Commit: ${sha}</p><p><img src="cid:login-qrcode" /></p>`,
             attachments: [

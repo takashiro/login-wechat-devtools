@@ -209,7 +209,11 @@ export default class DevTool {
 			try {
 				await cache.saveCache(['UserData'], cacheKey);
 			} catch (error) {
-				core.error(error);
+				if (error instanceof Error) {
+					core.error(error);
+				} else {
+					core.error(String(error));
+				}
 			}
 		} else {
 			await cache.saveCache(['UserData'], cacheKey);
@@ -224,7 +228,11 @@ export default class DevTool {
 			try {
 				cacheKey = await cache.restoreCache(['UserData'], primaryRestoreKey, restoreKeys);
 			} catch (error) {
-				core.error(error);
+				if (error instanceof Error) {
+					core.error(error);
+				} else {
+					core.error(String(error));
+				}
 			}
 		} else {
 			cacheKey = await cache.restoreCache(['UserData'], primaryRestoreKey, restoreKeys);

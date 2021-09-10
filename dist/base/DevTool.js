@@ -60,7 +60,7 @@ class DevTool {
             this.launchGui(),
             this.allowCli(),
         ]);
-        await idle_1.default(this.launchDelay);
+        await (0, idle_1.default)(this.launchDelay);
     }
     async login() {
         const loginQrCode = path.join(os.tmpdir(), 'login-qrcode.png');
@@ -69,7 +69,7 @@ class DevTool {
             this.cli('login', '-f', 'image', '-o', loginQrCode),
             mailer.send(),
         ]);
-        await idle_1.default(this.actionDelay);
+        await (0, idle_1.default)(this.actionDelay);
         if (login.exitCode !== 0 || await this.isAnonymous()) {
             throw new Error('Login failed.');
         }
@@ -84,7 +84,7 @@ class DevTool {
     }
     async quit() {
         await this.cli('quit');
-        await idle_1.default(this.actionDelay);
+        await (0, idle_1.default)(this.actionDelay);
     }
     async launchGui() {
         const gui = this.getGuiPath();
@@ -101,15 +101,15 @@ class DevTool {
     }
     async allowCli() {
         const dataDir = this.getDataDir();
-        await exist_1.default(dataDir);
+        await (0, exist_1.default)(dataDir);
         const userDataDir = this.getUserDataDir();
-        await exist_1.default(userDataDir);
-        const userDir = path.join(userDataDir, md5_1.default(this.getInstallDir()));
+        await (0, exist_1.default)(userDataDir);
+        const userDir = path.join(userDataDir, (0, md5_1.default)(this.getInstallDir()));
         if (!fs.existsSync(userDir)) {
             throw new Error('No user data directory is found.');
         }
         const markFiles = ['.ide', '.ide-status'];
-        await Promise.all(markFiles.map((markFile) => exist_1.default(path.join(userDir, 'Default', markFile))));
+        await Promise.all(markFiles.map((markFile) => (0, exist_1.default)(path.join(userDir, 'Default', markFile))));
         // Fix incorrect install path on OS X
         if (os.platform() === 'darwin') {
             const from = path.join(userDataDir, 'f1fed8de4c2182d92f6729442499eb45');
@@ -149,7 +149,12 @@ class DevTool {
                 await cache.saveCache(['UserData'], cacheKey);
             }
             catch (error) {
-                core.error(error);
+                if (error instanceof Error) {
+                    core.error(error);
+                }
+                else {
+                    core.error(String(error));
+                }
             }
         }
         else {
@@ -165,7 +170,12 @@ class DevTool {
                 cacheKey = await cache.restoreCache(['UserData'], primaryRestoreKey, restoreKeys);
             }
             catch (error) {
-                core.error(error);
+                if (error instanceof Error) {
+                    core.error(error);
+                }
+                else {
+                    core.error(String(error));
+                }
             }
         }
         else {

@@ -18,6 +18,11 @@ const DevToolFactory_1 = require("./base/DevToolFactory");
         }
     }
     catch (error) {
-        core.setFailed(error);
+        if (error instanceof Error) {
+            core.setFailed(error);
+        }
+        else {
+            core.setFailed(String(error));
+        }
     }
 }());
